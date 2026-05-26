@@ -1,63 +1,48 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Filtro de Audio - Calculo II</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Filtro de Audio - Calculo II</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="hidden-inputs">
-    <input type="range" id="s-terms" min="1" max="12" value="4" step="1">
-    <input type="range" id="s-noise" min="0" max="100" value="30" step="1">
-    <input type="range" id="s-harm" min="1" max="5" value="2" step="1">
-    <input type="range" id="s-win" min="2" max="60" value="12" step="2">
+<input type="file" id="file-input" class="hidden" accept=".mp3,.wav,.ogg,.flac,.aac,.m4a">
+
+<div class="hidden">
+  <input type="range" id="s-terms"  min="1"    max="12"    value="4"     step="1">
+  <input type="range" id="s-noise"  min="0"    max="100"   value="30"    step="1">
+  <input type="range" id="s-smooth" min="1"    max="80"    value="8"     step="1">
+  <input type="range" id="s-freq"   min="1000" max="20000" value="20000" step="500">
+  <input type="range" id="s-win"    min="1"    max="150"   value="10"    step="1">
+  <input type="range" id="s-bass"   min="-18"  max="18"    value="0"     step="1">
+  <input type="range" id="s-treble" min="-18"  max="18"    value="0"     step="1">
+  <input type="range" id="s-sub"    min="-18"  max="18"    value="0"     step="1">
+  <input type="range" id="s-vol"    min="0"    max="150"   value="100"   step="1">
+</div>
+
+<div class="device">
+
+  <div class="device-display">
+    <div class="display-top">
+      <span class="d-brand">Filtro de sonido</span>
+      <span class="d-sub">CALC-II &mdash; AUDIO EXP.</span>
     </div>
-
-    <div class="device">
-
-    <div class="device-display">
-
-        <div class="display-top">
-            <span class="d-brand">Filtro de sonido</span>
-            <span class="d-sub">calculo &mdash; II.</span>
+    <div class="scope-row">
+      <div class="db-scale"><span>+1</span><span>0</span><span>-1</span></div>
+      <div class="canvas-wrap">
+        <canvas id="cv" height="200"></canvas>
+        <div class="freq-scale">
+          <span>100</span><span>500</span><span>1k</span><span>5k</span><span>10k</span>
         </div>
-
-        <div class="scope-row">
-
-            <div class="db-scale">
-                <span>12</span><span>0</span><span>-12</span>
-            </div>
-
-            <div class="canvas-wrap">
-                <canvas id="cv" height="220"></canvas>
-                <div class="freq-scale">
-                <span>100</span><span>500</span><span>1k</span><span>5k</span><span>10k</span>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="legend">
-
-            <div class="leg-item">
-                <div class="leg-line" style="background:rgba(240,153,123,0.7)"></div>
-                <span>Senal ruidosa</span>
-            </div>
-
-            <div class="leg-item">
-                <div class="leg-line" style="background:rgba(136,135,128,0.6)"></div>
-                <span>Taylor sin(x)</span>
-            </div>
-
-            <div class="leg-item">
-                <div class="leg-line" style="background:#1d9e75"></div>
-                <span>Filtrada (trapecio)</span>
-            </div>
-
-        </div>
+      </div>
     </div>
+    <div class="legend">
+      <div class="leg-item"><div class="leg-line" style="background:rgba(240,153,123,0.7)"></div><span>Original</span></div>
+      <div class="leg-item"><div class="leg-line" style="background:#1d9e75"></div><span>Procesada</span></div>
+    </div>
+  </div>
 
   <div class="chassis">
 
@@ -66,80 +51,136 @@
       <div class="vu-lbl">IN</div>
     </div>
 
-    <div class="ctrl-col">
-      <div class="knobs-row">
+    <div class="sliders-and-vol" style="grid-column:2;grid-row:1;">
 
-        <div class="knob-group">
-          <div class="knob-wrap">
-            <div class="knob-face">
-              <div class="knob-cap"></div>
-              <div class="knob-dot"></div>
-            </div>
-          </div>
-          <div class="knob-lbl">TAYLOR</div>
-          <div class="knob-val-lbl" id="v-terms">4</div>
+      <div class="vslider-group" data-id="s-terms">
+        <div class="vslider-lbl">TAYLOR</div>
+        <div class="vtrack-wrap">
+          <div class="vslider-fill" id="fill-s-terms"></div>
+          <div class="vslider-thumb" id="thumb-s-terms"></div>
         </div>
-
-        <div class="knob-group">
-          <div class="knob-wrap">
-            <div class="knob-face">
-              <div class="knob-cap"></div>
-              <div class="knob-dot"></div>
-            </div>
-          </div>
-          <div class="knob-lbl">NOISE</div>
-          <div class="knob-val-lbl" id="v-noise">30%</div>
-        </div>
-
-        <div class="knob-group">
-          <div class="knob-wrap sm">
-            <div class="knob-face">
-              <div class="knob-cap"></div>
-              <div class="knob-dot"></div>
-            </div>
-          </div>
-          <div class="knob-lbl">HARM</div>
-          <div class="knob-val-lbl" id="v-harm">2</div>
-        </div>
-
-        <div class="knob-group">
-          <div class="knob-wrap sm">
-            <div class="knob-face">
-              <div class="knob-cap"></div>
-              <div class="knob-dot"></div>
-            </div>
-          </div>
-          <div class="knob-lbl">WINDOW</div>
-          <div class="knob-val-lbl" id="v-win">12</div>
-        </div>
-
+        <div class="vslider-val" id="v-terms">4</div>
       </div>
 
-      <div class="formula-box">
-        <div>sin(x) <span class="hl">&#8776;</span> x <span class="hl">-</span> x&#179;/3! <span class="hl">+</span> x&#8309;/5! <span class="hl">-</span> x&#8311;/7!</div>
-        <div>y[i] = <span class="hl">h/2</span> &middot; (f&#8320; + 2f&#8321; + ... + f&#8345;) / n</div>
+      <div class="vslider-group" data-id="s-noise">
+        <div class="vslider-lbl">RUIDO</div>
+        <div class="vtrack-wrap">
+          <div class="vslider-fill" id="fill-s-noise"></div>
+          <div class="vslider-thumb" id="thumb-s-noise"></div>
+        </div>
+        <div class="vslider-val" id="v-noise">30%</div>
       </div>
+
+      <div class="vslider-group" data-id="s-smooth">
+        <div class="vslider-lbl">SUAVIZADO</div>
+        <div class="vtrack-wrap">
+          <div class="vslider-fill" id="fill-s-smooth"></div>
+          <div class="vslider-thumb" id="thumb-s-smooth"></div>
+        </div>
+        <div class="vslider-val" id="v-smooth">8</div>
+      </div>
+
+      <div class="vslider-group" data-id="s-freq">
+        <div class="vslider-lbl">FREC</div>
+        <div class="vtrack-wrap">
+          <div class="vslider-fill" id="fill-s-freq"></div>
+          <div class="vslider-thumb" id="thumb-s-freq"></div>
+        </div>
+        <div class="vslider-val" id="v-freq">flat</div>
+      </div>
+
+      <div class="vslider-group" data-id="s-win">
+        <div class="vslider-lbl">Q/VENT</div>
+        <div class="vtrack-wrap">
+          <div class="vslider-fill" id="fill-s-win"></div>
+          <div class="vslider-thumb" id="thumb-s-win"></div>
+        </div>
+        <div class="vslider-val" id="v-win">1.0</div>
+      </div>
+
+      <div style="flex:1"></div>
+
+      <div class="vol-knob-wrap">
+        <div class="vol-ring" id="vol-ring">
+          <svg class="vol-ring-svg" viewBox="0 0 110 110">
+            <circle cx="55" cy="55" r="50" fill="none" stroke="rgba(0,0,0,0.08)" stroke-width="1.5" stroke-dasharray="3 4"/>
+            <path id="vol-arc" fill="none" stroke="url(#arcgrad)" stroke-width="3" stroke-linecap="round"/>
+            <defs>
+              <linearGradient id="arcgrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#e8620a"/>
+                <stop offset="100%" stop-color="#f5a040"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="vol-face">
+            <div class="vol-label">VOLUME</div>
+            <div class="vol-num" id="vol-num">100</div>
+            <div class="vol-unit">%</div>
+          </div>
+        </div>
+        <div class="vol-knob-lbl">VOL</div>
+      </div>
+
+      <div style="flex:1"></div>
+
+      <div class="vslider-group sec" data-id="s-bass">
+        <div class="vslider-lbl">BAJOS</div>
+        <div class="vtrack-wrap">
+          <div class="vslider-fill" id="fill-s-bass"></div>
+          <div class="vslider-thumb" id="thumb-s-bass"></div>
+        </div>
+        <div class="vslider-val" id="v-bass">0dB</div>
+      </div>
+
+      <div class="vslider-group sec" data-id="s-treble">
+        <div class="vslider-lbl">AGUDOS</div>
+        <div class="vtrack-wrap">
+          <div class="vslider-fill" id="fill-s-treble"></div>
+          <div class="vslider-thumb" id="thumb-s-treble"></div>
+        </div>
+        <div class="vslider-val" id="v-treble">0dB</div>
+      </div>
+
+      <div class="vslider-group sec" data-id="s-sub">
+        <div class="vslider-lbl">GRAVES</div>
+        <div class="vtrack-wrap">
+          <div class="vslider-fill" id="fill-s-sub"></div>
+          <div class="vslider-thumb" id="thumb-s-sub"></div>
+        </div>
+        <div class="vslider-val" id="v-sub">0dB</div>
+      </div>
+
     </div>
 
+    <div class="formula-box" id="formula-display" style="grid-column:2;grid-row:2;">Ajusta los parametros para ver las operaciones</div>
+
     <div class="metrics-col">
+
+      <div class="panel-lbl">Archivo</div>
+      <div class="file-panel">
+        <div class="file-drop-zone" id="drop-zone">
+          <div class="file-drop-icon"><i>&#9650;</i></div>
+          <div class="file-drop-txt">Subir audio</div>
+          <div class="file-drop-fmt">mp3 &middot; wav &middot; ogg &middot; flac &middot; aac</div>
+        </div>
+        <div class="file-info">
+          <div class="status-dot" id="status-dot"></div>
+          <div class="file-name" id="file-label">sin archivo</div>
+          <div class="status-msg" id="status-msg"></div>
+        </div>
+        <div class="btn-row">
+          <div class="ctl-btn sec" id="btn-play-raw">Original</div>
+          <div class="ctl-btn sec" id="btn-play-proc">Filtrada</div>
+          <div class="ctl-btn dl" id="btn-dl">Descargar</div>
+        </div>
+      </div>
+
       <div class="panel-lbl">Metricas</div>
       <div class="tiles">
-        <div class="tile">
-          <div class="tl">ERR TAYLOR</div>
-          <div class="tv g" id="m-err">...</div>
-        </div>
-        <div class="tile">
-          <div class="tl">REDC RUIDO</div>
-          <div class="tv a" id="m-red">...</div>
-        </div>
-        <div class="tile">
-          <div class="tl">TERMINOS</div>
-          <div class="tv" id="m-terms">4</div>
-        </div>
-        <div class="tile">
-          <div class="tl">MUESTRAS</div>
-          <div class="tv" id="m-samples">512</div>
-        </div>
+        <div class="tile"><div class="tl">ERR TAYLOR</div><div class="tv g" id="m-err">...</div></div>
+        <div class="tile"><div class="tl">REDC RUIDO</div><div class="tv a" id="m-red">...</div></div>
+        <div class="tile"><div class="tl">TERMINOS</div><div class="tv" id="m-terms">4</div></div>
+        <div class="tile"><div class="tl">SAMPLE RATE</div><div class="tv" id="m-samples">...</div></div>
       </div>
 
       <div class="panel-lbl">Consola</div>
@@ -149,188 +190,168 @@
         <div class="lcd-row"><span>sin(pi/2)</span><span class="lv" id="l-t2">...</span></div>
         <div class="lcd-row"><span>exacto</span><span class="lv">1.00000000</span></div>
         <div class="lcd-row"><span>err max</span><span class="lv a" id="l-max">...</span></div>
-        <div class="lcd-row"><span>var ruido</span><span class="lv r" id="l-varn">...</span></div>
-        <div class="lcd-row"><span>var filt</span><span class="lv" id="l-varf">...</span></div>
+        <div class="lcd-row"><span>rms orig</span><span class="lv r" id="l-varn">...</span></div>
+        <div class="lcd-row"><span>rms filt</span><span class="lv" id="l-varf">...</span></div>
       </div>
+
     </div>
 
     <div class="brand-strip">
-      <div class="brand-note">
-        Serie de Maclaurin &mdash; Regla del Trapecio<br>
-        * Filtro y suavizado de audio &mdash; Calculo II
-      </div>
-      <div class="brand-name">CALCULO&ndash;II</div>
+      <div class="brand-note">Serie de Maclaurin &mdash; Regla del Trapecio<br>Filtros Biquad &mdash; Calculo II</div>
+      <div class="brand-name">CALC-II</div>
     </div>
 
   </div>
 </div>
 
+<!-- esto es solo estetica lo funcional esta en script.js -->
+
 <script>
-const vuDots = document.getElementById('vu-dots');
-for (let i = 0; i < 18; i++) {
-  const d = document.createElement('div');
-  d.className = 'vu-dot';
-  vuDots.appendChild(d);
-}
+(function () {
+  var vuDots = document.getElementById('vu-dots');
+  for (var i = 0; i < 18; i++) {
+    var d = document.createElement('div');
+    d.className = 'vu-dot';
+    vuDots.appendChild(d);
+  }
 
-function animVU() {
-  const lvl = 0.5 + 0.5 * Math.abs(Math.sin(Date.now() / 350 + Math.cos(Date.now() / 190) * 0.5));
-  const n = 18, active = Math.floor(lvl * n);
-  document.querySelectorAll('.vu-dot').forEach((d, i) => {
-    const pos = n - 1 - i;
-    if (pos < active) {
-      if (pos >= n - 2) d.className = 'vu-dot r';
-      else if (pos >= n - 5) d.className = 'vu-dot o';
-      else d.className = 'vu-dot g';
-    } else {
-      d.className = 'vu-dot';
+  var TRACK_H = 110, THUMB_H = 20, USABLE = TRACK_H - THUMB_H;
+
+  function pctToTop(pct) { return (1 - pct) * USABLE + (THUMB_H / 2) - (THUMB_H / 2); }
+
+  function initSlider(id) {
+    var input  = document.getElementById(id);
+    var thumb  = document.getElementById('thumb-' + id);
+    var fill   = document.getElementById('fill-' + id);
+    var group  = thumb.closest('.vtrack-wrap');
+    if (!input || !thumb || !fill || !group) return;
+
+    function syncVisual() {
+      var min = parseFloat(input.min), max = parseFloat(input.max), val = parseFloat(input.value);
+      var pct = (val - min) / (max - min);
+      var topPx = pctToTop(pct);
+      thumb.style.top = topPx + 'px';
+      var fillH = (pct * USABLE);
+      fill.style.height = fillH + 'px';
+      fill.style.bottom = '10px';
     }
+
+    syncVisual();
+
+    var dragging = false, startY = 0, startVal = 0;
+
+    function onDown(e) {
+      dragging = true;
+      startY = e.touches ? e.touches[0].clientY : e.clientY;
+      startVal = parseFloat(input.value);
+      e.preventDefault();
+    }
+
+    function onMove(e) {
+      if (!dragging) return;
+      var cy = e.touches ? e.touches[0].clientY : e.clientY;
+      var dy = startY - cy;
+      var range = parseFloat(input.max) - parseFloat(input.min);
+      var delta = (dy / USABLE) * range;
+      var nv = Math.min(parseFloat(input.max), Math.max(parseFloat(input.min), startVal + delta));
+      var step = parseFloat(input.step) || 1;
+      nv = Math.round(nv / step) * step;
+      input.value = nv;
+      input.dispatchEvent(new Event('input'));
+      syncVisual();
+      e.preventDefault();
+    }
+
+    function onUp() { dragging = false; }
+
+    thumb.addEventListener('mousedown', onDown);
+    thumb.addEventListener('touchstart', onDown, { passive: false });
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('touchmove', onMove, { passive: false });
+    window.addEventListener('mouseup', onUp);
+    window.addEventListener('touchend', onUp);
+
+    input.addEventListener('input', syncVisual);
+  }
+
+  var SLIDER_IDS = ['s-terms','s-noise','s-smooth','s-freq','s-win','s-bass','s-treble','s-sub'];
+  SLIDER_IDS.forEach(initSlider);
+
+  /* volume knob */
+  var volInput = document.getElementById('s-vol');
+  var volRing  = document.getElementById('vol-ring');
+  var volNum   = document.getElementById('vol-num');
+  var volArc   = document.getElementById('vol-arc');
+
+  function arcPath(pct) {
+    var startAngle = -220 * Math.PI / 180;
+    var sweep      = 260 * Math.PI / 180;
+    var angle      = startAngle + pct * sweep;
+    var cx = 55, cy = 55, r = 50;
+    var sx = cx + r * Math.cos(startAngle), sy = cy + r * Math.sin(startAngle);
+    var ex = cx + r * Math.cos(angle),      ey = cy + r * Math.sin(angle);
+    var large = pct > 0.5 ? 1 : 0;
+    if (pct < 0.001) return '';
+    return 'M ' + sx + ' ' + sy + ' A ' + r + ' ' + r + ' 0 ' + large + ' 1 ' + ex + ' ' + ey;
+  }
+
+  function syncVol() {
+    var v = parseFloat(volInput.value);
+    var pct = v / 150;
+    volNum.textContent = v;
+    volArc.setAttribute('d', arcPath(pct));
+  }
+
+  syncVol();
+
+  var volDragging = false, volStartY = 0, volStartVal = 0;
+
+  volRing.addEventListener('mousedown', function (e) {
+    volDragging = true; volStartY = e.clientY; volStartVal = parseFloat(volInput.value); e.preventDefault();
   });
-  requestAnimationFrame(animVU);
-}
-animVU();
+  volRing.addEventListener('touchstart', function (e) {
+    volDragging = true; volStartY = e.touches[0].clientY; volStartVal = parseFloat(volInput.value); e.preventDefault();
+  }, { passive: false });
 
-const N = 512;
-const TWO_PI = 2 * Math.PI;
+  window.addEventListener('mousemove', function (e) {
+    if (!volDragging) return;
+    var dy = volStartY - e.clientY;
+    var nv = Math.min(150, Math.max(0, volStartVal + dy));
+    volInput.value = Math.round(nv);
+    volInput.dispatchEvent(new Event('input'));
+    syncVol();
+  });
+  window.addEventListener('touchmove', function (e) {
+    if (!volDragging) return;
+    var dy = volStartY - e.touches[0].clientY;
+    var nv = Math.min(150, Math.max(0, volStartVal + dy));
+    volInput.value = Math.round(nv);
+    volInput.dispatchEvent(new Event('input'));
+    syncVol();
+    e.preventDefault();
+  }, { passive: false });
+  window.addEventListener('mouseup',  function () { volDragging = false; });
+  window.addEventListener('touchend', function () { volDragging = false; });
+  volInput.addEventListener('input', syncVol);
 
-function taylorSin(x, terms) {
-  x = x - TWO_PI * Math.floor((x + Math.PI) / TWO_PI);
-  let term = x, sum = x;
-  for (let i = 1; i < terms; i++) {
-    term *= -(x * x) / ((2 * i) * (2 * i + 1));
-    sum  += term;
+  var dropZone = document.getElementById('drop-zone');
+  dropZone.addEventListener('click', function () { document.getElementById('file-input').click(); });
+  dropZone.addEventListener('dragover', function (e) { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', function () { dropZone.classList.remove('drag-over'); });
+  dropZone.addEventListener('drop', function (e) {
+    e.preventDefault(); dropZone.classList.remove('drag-over');
+    var f = e.dataTransfer.files[0];
+    if (f) triggerLoad(f);
+  });
+
+  function triggerLoad(f) {
+    var ev = { target: { files: [f] } };
+    document.getElementById('file-input').dispatchEvent(new Event('change'));
   }
-  return sum;
-}
-
-function makeSignal(terms, noiseLevel, harmonics) {
-  const raw = new Float64Array(N), noisy = new Float64Array(N);
-  const amp = noiseLevel / 100;
-  for (let i = 0; i < N; i++) {
-    const t = (i / N) * TWO_PI * 2;
-    let v = 0, totalW = 0;
-    for (let h = 1; h <= harmonics; h++) {
-      const w = 1 / h;
-      v += w * taylorSin(t * h, terms);
-      totalW += w;
-    }
-    v /= totalW;
-    raw[i] = v;
-    const r = Math.sin(i * 127.1) * Math.sin(i * 311.7 + 17.3);
-    noisy[i] = v + r * amp;
-  }
-  return { raw, noisy };
-}
-
-function trapFilter(signal, win) {
-  const out = new Float64Array(N), half = Math.floor(win / 2);
-  for (let i = 0; i < N; i++) {
-    const a = Math.max(0, i - half), b = Math.min(N - 1, i + half);
-    const len = b - a;
-    if (len === 0) { out[i] = signal[i]; continue; }
-    let area = signal[a] + signal[b];
-    for (let j = a + 1; j < b; j++) area += 2 * signal[j];
-    out[i] = area / (2 * len);
-  }
-  return out;
-}
-
-function variance(arr) {
-  const mean = arr.reduce((s, v) => s + v, 0) / arr.length;
-  return arr.reduce((s, v) => s + (v - mean) ** 2, 0) / arr.length;
-}
-
-function maxError(terms) {
-  let max = 0;
-  for (let i = 0; i <= 200; i++) {
-    const x = -Math.PI + (i / 200) * TWO_PI;
-    const e = Math.abs(taylorSin(x, terms) - Math.sin(x));
-    if (e > max) max = e;
-  }
-  return max;
-}
-
-function draw(raw, noisy, filtered) {
-  const cv = document.getElementById('cv');
-  const ctx = cv.getContext('2d');
-  const W = cv.width, H = cv.height;
-  ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = '#060a0e';
-  ctx.fillRect(0, 0, W, H);
-
-  /*grid*/
-  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-  ctx.lineWidth = 0.5;
-  for (let r = 0; r <= 6; r++) {
-    ctx.beginPath(); ctx.moveTo(0, (r/6)*H); ctx.lineTo(W, (r/6)*H); ctx.stroke();
-  }
-  for (let c = 0; c <= 10; c++) {
-    ctx.beginPath(); ctx.moveTo((c/10)*W, 0); ctx.lineTo((c/10)*W, H); ctx.stroke();
-  }
-  ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-  ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
-
-  const mid = H / 2, amp = H * 0.38;
-
-  function line(data, color, width, dashed) {
-    ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = width;
-    if (dashed) ctx.setLineDash([3,3]); else ctx.setLineDash([]);
-    for (let i = 0; i < data.length; i++) {
-      const x = (i / (data.length - 1)) * W, y = mid - data[i] * amp;
-      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-    }
-    ctx.stroke(); ctx.setLineDash([]);
-  }
-
-  line(noisy,    'rgba(240,153,123,0.55)', 1, false);
-  line(raw,      'rgba(136,135,128,0.5)',  1, true);
-  line(filtered, '#1d9e75',               2, false);
-}
-
-function update() {
-  const terms = parseInt(document.getElementById('s-terms').value);
-  const noise = parseInt(document.getElementById('s-noise').value);
-  const harm  = parseInt(document.getElementById('s-harm').value);
-  const win   = parseInt(document.getElementById('s-win').value);
-
-  document.getElementById('v-terms').textContent = terms;
-  document.getElementById('v-noise').textContent = noise + '%';
-  document.getElementById('v-harm').textContent  = harm;
-  document.getElementById('v-win').textContent   = win;
-  document.getElementById('m-terms').textContent = terms;
-
-  const { raw, noisy } = makeSignal(terms, noise, harm);
-  const filtered = trapFilter(noisy, win);
-
-  const vn = variance(noisy), vf = variance(filtered);
-  const reduction = vn > 0 ? ((1 - vf / vn) * 100) : 0;
-  const err = maxError(terms);
-
-  document.getElementById('m-err').textContent   = err.toFixed(5);
-  document.getElementById('m-red').textContent   = Math.max(0, reduction).toFixed(1) + '%';
-  document.getElementById('m-samples').textContent = N;
-
-  const pi4 = Math.PI / 4, pi2 = Math.PI / 2;
-  document.getElementById('l-t1').textContent   = taylorSin(pi4, terms).toFixed(8);
-  document.getElementById('l-t2').textContent   = taylorSin(pi2, terms).toFixed(8);
-  document.getElementById('l-max').textContent  = err.toFixed(8);
-  document.getElementById('l-varn').textContent = vn.toFixed(6);
-  document.getElementById('l-varf').textContent = vf.toFixed(6);
-
-  const cv = document.getElementById('cv');
-  cv.width = cv.parentElement.clientWidth || 700;
-  cv.height = 220;
-  draw(raw, noisy, filtered);
-}
-
-['s-terms','s-noise','s-harm','s-win'].forEach(id => {
-  document.getElementById(id).addEventListener('input', update);
-});
-
-window.addEventListener('resize', update);
-window.addEventListener('load', () => setTimeout(update, 80));
+})();
 </script>
 
+<script src="audio.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
