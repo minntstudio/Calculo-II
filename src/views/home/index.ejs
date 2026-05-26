@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Filtro de Audio - Calculo II</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
@@ -15,6 +15,7 @@
     <input type="range" id="s-win" min="2" max="60" value="12" step="2">
     </div>
 
+    <%- include("./form.ejs") %>
     <div class="device">
 
     <div class="device-display">
@@ -331,6 +332,5 @@ function update() {
 window.addEventListener('resize', update);
 window.addEventListener('load', () => setTimeout(update, 80));
 </script>
-
 </body>
 </html>
