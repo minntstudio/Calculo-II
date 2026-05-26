@@ -1,4 +1,3 @@
 node_modules
-Dashboard/dashboard-electrohouse/node_modules
-public/images/user-avatar/
-public/images/product-img/
+public/records
+recordMap
