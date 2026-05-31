@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Filtro de Audio - Calculo II</title>
+<title>Procesador de Audio — Minnt Studio</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,9 +11,9 @@
 <input type="file" id="file-input" class="hidden" accept=".mp3,.wav,.ogg,.flac,.aac,.m4a">
 
 <div class="hidden">
-  <input type="range" id="s-terms"  min="1"    max="12"    value="4"     step="1">
-  <input type="range" id="s-noise"  min="0"    max="100"   value="30"    step="1">
-  <input type="range" id="s-smooth" min="1"    max="80"    value="8"     step="1">
+  <input type="range" id="s-terms"  min="1"    max="12"    value="5"     step="1">
+  <input type="range" id="s-noise"  min="0"    max="100"   value="25"    step="1">
+  <input type="range" id="s-smooth" min="1"    max="80"    value="6"     step="1">
   <input type="range" id="s-freq"   min="1000" max="20000" value="20000" step="500">
   <input type="range" id="s-win"    min="1"    max="150"   value="10"    step="1">
   <input type="range" id="s-bass"   min="-18"  max="18"    value="0"     step="1">
@@ -22,332 +22,420 @@
   <input type="range" id="s-vol"    min="0"    max="150"   value="100"   step="1">
 </div>
 
-<div class="device">
-
-  <div class="device-display">
-    <div class="display-top">
-      <span class="d-brand">Filtro de sonido</span>
-      <span class="d-sub">CALC-II &mdash; AUDIO EXP.</span>
-    </div>
-    <div class="scope-row">
-      <div class="db-scale"><span>+1</span><span>0</span><span>-1</span></div>
-      <div class="canvas-wrap">
-        <canvas id="cv" height="200"></canvas>
-        <div class="freq-scale">
-          <span>100</span><span>500</span><span>1k</span><span>5k</span><span>10k</span>
-        </div>
-      </div>
-    </div>
-    <div class="legend">
-      <div class="leg-item"><div class="leg-line" style="background:rgba(240,153,123,0.7)"></div><span>Original</span></div>
-      <div class="leg-item"><div class="leg-line" style="background:#1d9e75"></div><span>Procesada</span></div>
-    </div>
+<!--header-->
+<header class="site-header">
+  <div class="logo">
+    <span class="logo-name">Minnt Studio</span>
+    <div class="logo-sep"></div>
+    <span class="logo-tag">Procesador de Audio</span>
   </div>
+  <span class="header-badge">Serie Maclaurin &nbsp;|&nbsp; Filtros Biquad &nbsp;|&nbsp; Calculo II</span>
+</header>
 
-  <div class="chassis">
+<main class="page">
 
-    <div class="vu-col">
-      <div class="vu-dots" id="vu-dots"></div>
-      <div class="vu-lbl">IN</div>
+  <!--subir archivo-->
+  <section class="neu upload-card">
+    <div class="sec-title">Archivo de audio</div>
+    <div class="drop-zone" id="drop-zone">
+      <div class="drop-icon"><i>&#9650;</i></div>
+      <div class="drop-title">Sube o arrastra tu audio aqui</div>
+      <div class="drop-sub">Haz clic para seleccionar un archivo</div>
+      <div class="drop-fmts">mp3 &nbsp;&middot;&nbsp; wav &nbsp;&middot;&nbsp; ogg &nbsp;&middot;&nbsp; flac &nbsp;&middot;&nbsp; aac &nbsp;&middot;&nbsp; m4a</div>
     </div>
+    <div class="file-info-row">
+      <div class="status-dot" id="status-dot"></div>
+      <div class="file-name-txt" id="file-label">Sin archivo cargado</div>
+      <div class="status-txt" id="status-msg"></div>
+    </div>
+  </section>
 
-    <div class="sliders-and-vol" style="grid-column:2;grid-row:1;">
+  <!--reproductores-->
+  <div class="players-grid">
 
-      <div class="vslider-group" data-id="s-terms">
-        <div class="vslider-lbl">TAYLOR</div>
-        <div class="vtrack-wrap">
-          <div class="vslider-fill" id="fill-s-terms"></div>
-          <div class="vslider-thumb" id="thumb-s-terms"></div>
-        </div>
-        <div class="vslider-val" id="v-terms">4</div>
+    <!--original-->
+    <div class="neu player-card" id="player-raw-card">
+      <div class="player-header">
+        <span class="player-label orig">Original</span>
+        <span class="player-time" id="time-raw">0:00 / 0:00</span>
       </div>
-
-      <div class="vslider-group" data-id="s-noise">
-        <div class="vslider-lbl">RUIDO</div>
-        <div class="vtrack-wrap">
-          <div class="vslider-fill" id="fill-s-noise"></div>
-          <div class="vslider-thumb" id="thumb-s-noise"></div>
-        </div>
-        <div class="vslider-val" id="v-noise">30%</div>
+      <div class="player-wave-wrap" id="wave-raw-wrap">
+        <canvas class="player-wave" id="wave-raw" height="72"></canvas>
       </div>
-
-      <div class="vslider-group" data-id="s-smooth">
-        <div class="vslider-lbl">SUAVIZADO</div>
-        <div class="vtrack-wrap">
-          <div class="vslider-fill" id="fill-s-smooth"></div>
-          <div class="vslider-thumb" id="thumb-s-smooth"></div>
-        </div>
-        <div class="vslider-val" id="v-smooth">8</div>
-      </div>
-
-      <div class="vslider-group" data-id="s-freq">
-        <div class="vslider-lbl">FREC</div>
-        <div class="vtrack-wrap">
-          <div class="vslider-fill" id="fill-s-freq"></div>
-          <div class="vslider-thumb" id="thumb-s-freq"></div>
-        </div>
-        <div class="vslider-val" id="v-freq">flat</div>
-      </div>
-
-      <div class="vslider-group" data-id="s-win">
-        <div class="vslider-lbl">Q/VENT</div>
-        <div class="vtrack-wrap">
-          <div class="vslider-fill" id="fill-s-win"></div>
-          <div class="vslider-thumb" id="thumb-s-win"></div>
-        </div>
-        <div class="vslider-val" id="v-win">1.0</div>
-      </div>
-
-      <div style="flex:1"></div>
-
-      <div class="vol-knob-wrap">
-        <div class="vol-ring" id="vol-ring">
-          <svg class="vol-ring-svg" viewBox="0 0 110 110">
-            <circle cx="55" cy="55" r="50" fill="none" stroke="rgba(0,0,0,0.08)" stroke-width="1.5" stroke-dasharray="3 4"/>
-            <path id="vol-arc" fill="none" stroke="url(#arcgrad)" stroke-width="3" stroke-linecap="round"/>
-            <defs>
-              <linearGradient id="arcgrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#e8620a"/>
-                <stop offset="100%" stop-color="#f5a040"/>
-              </linearGradient>
-            </defs>
-          </svg>
-          <div class="vol-face">
-            <div class="vol-label">VOLUME</div>
-            <div class="vol-num" id="vol-num">100</div>
-            <div class="vol-unit">%</div>
+      <div class="player-controls">
+        <button class="btn-play" id="btn-play-raw" title="Reproducir original">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2l10 6-10 6V2z"/></svg>
+        </button>
+        <div style="flex:1; display:flex; flex-direction:column; gap:5px;">
+          <div class="htrack-wrap" id="seek-raw" style="height:16px; border-radius:8px;">
+            <div class="hslider-fill" id="prog-raw-fill" style="background:linear-gradient(to right,rgba(232,98,10,0.7),rgba(232,98,10,0.2));"></div>
+            <div class="hslider-thumb" id="prog-raw-thumb" style="width:16px;height:16px;left:0;"></div>
           </div>
         </div>
-        <div class="vol-knob-lbl">VOL</div>
       </div>
-
-      <div style="flex:1"></div>
-
-      <div class="vslider-group sec" data-id="s-bass">
-        <div class="vslider-lbl">BAJOS</div>
-        <div class="vtrack-wrap">
-          <div class="vslider-fill" id="fill-s-bass"></div>
-          <div class="vslider-thumb" id="thumb-s-bass"></div>
-        </div>
-        <div class="vslider-val" id="v-bass">0dB</div>
-      </div>
-
-      <div class="vslider-group sec" data-id="s-treble">
-        <div class="vslider-lbl">AGUDOS</div>
-        <div class="vtrack-wrap">
-          <div class="vslider-fill" id="fill-s-treble"></div>
-          <div class="vslider-thumb" id="thumb-s-treble"></div>
-        </div>
-        <div class="vslider-val" id="v-treble">0dB</div>
-      </div>
-
-      <div class="vslider-group sec" data-id="s-sub">
-        <div class="vslider-lbl">GRAVES</div>
-        <div class="vtrack-wrap">
-          <div class="vslider-fill" id="fill-s-sub"></div>
-          <div class="vslider-thumb" id="thumb-s-sub"></div>
-        </div>
-        <div class="vslider-val" id="v-sub">0dB</div>
-      </div>
-
     </div>
 
-    <div class="formula-box" id="formula-display" style="grid-column:2;grid-row:2;">Ajusta los parametros para ver las operaciones</div>
-
-    <div class="metrics-col">
-
-      <div class="panel-lbl">Archivo</div>
-      <div class="file-panel">
-        <div class="file-drop-zone" id="drop-zone">
-          <div class="file-drop-icon"><i>&#9650;</i></div>
-          <div class="file-drop-txt">Subir audio</div>
-          <div class="file-drop-fmt">mp3 &middot; wav &middot; ogg &middot; flac &middot; aac</div>
-        </div>
-        <div class="file-info">
-          <div class="status-dot" id="status-dot"></div>
-          <div class="file-name" id="file-label">sin archivo</div>
-          <div class="status-msg" id="status-msg"></div>
-        </div>
-        <div class="btn-row">
-          <div class="ctl-btn sec" id="btn-play-raw">Original</div>
-          <div class="ctl-btn sec" id="btn-play-proc">Filtrada</div>
-          <div class="ctl-btn dl" id="btn-dl">Descargar</div>
-        </div>
+    <!--filtrada-->
+    <div class="neu player-card" id="player-proc-card">
+      <div class="player-header">
+        <span class="player-label filt">Procesada</span>
+        <span class="player-time" id="time-proc">0:00 / 0:00</span>
       </div>
-
-      <div class="panel-lbl">Metricas</div>
-      <div class="tiles">
-        <div class="tile"><div class="tl">ERR TAYLOR</div><div class="tv g" id="m-err">...</div></div>
-        <div class="tile"><div class="tl">REDC RUIDO</div><div class="tv a" id="m-red">...</div></div>
-        <div class="tile"><div class="tl">TERMINOS</div><div class="tv" id="m-terms">4</div></div>
-        <div class="tile"><div class="tl">SAMPLE RATE</div><div class="tv" id="m-samples">...</div></div>
+      <div class="player-wave-wrap" id="wave-proc-wrap">
+        <canvas class="player-wave" id="wave-proc" height="72"></canvas>
       </div>
-
-      <div class="panel-lbl">Consola</div>
-      <div class="lcd">
-        <div class="lcd-row"><span>sin(pi/4)</span><span class="lv" id="l-t1">...</span></div>
-        <div class="lcd-row"><span>exacto</span><span class="lv">0.70710678</span></div>
-        <div class="lcd-row"><span>sin(pi/2)</span><span class="lv" id="l-t2">...</span></div>
-        <div class="lcd-row"><span>exacto</span><span class="lv">1.00000000</span></div>
-        <div class="lcd-row"><span>err max</span><span class="lv a" id="l-max">...</span></div>
-        <div class="lcd-row"><span>rms orig</span><span class="lv r" id="l-varn">...</span></div>
-        <div class="lcd-row"><span>rms filt</span><span class="lv" id="l-varf">...</span></div>
+      <div class="player-controls">
+        <button class="btn-play" id="btn-play-proc" title="Reproducir procesada">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2l10 6-10 6V2z"/></svg>
+        </button>
+        <div style="flex:1; display:flex; flex-direction:column; gap:5px;">
+          <div class="htrack-wrap" id="seek-proc" style="height:16px; border-radius:8px;">
+            <div class="hslider-fill" id="prog-proc-fill" style="background:linear-gradient(to right,rgba(29,158,117,0.7),rgba(29,158,117,0.2));"></div>
+            <div class="hslider-thumb" id="prog-proc-thumb" style="width:16px;height:16px;left:0;"></div>
+          </div>
+        </div>
+        <button class="player-dl-btn" id="btn-dl">Descargar</button>
       </div>
-
-    </div>
-
-    <div class="brand-strip">
-      <div class="brand-note">Serie de Maclaurin &mdash; Regla del Trapecio<br>Filtros Biquad &mdash; Calculo II</div>
-      <div class="brand-name">CALC-II</div>
     </div>
 
   </div>
-</div>
 
-<!-- esto es solo estetica lo funcional esta en script.js -->
+  <!--osciloscopio-->
+  <div class="neu scope-card">
+    <div class="scope-top">
+      <span class="scope-lbl">Osciloscopio &mdash; dominio del tiempo</span>
+      <div class="scope-legend">
+        <div class="leg"><div class="leg-line" style="background:rgba(232,98,10,0.75)"></div>Original</div>
+        <div class="leg"><div class="leg-line" style="background:#1d9e75"></div>Procesada</div>
+      </div>
+    </div>
+    <div class="scope-canvas-wrap">
+      <canvas class="scope-canvas" id="cv" height="160"></canvas>
+      <div class="scope-freqs">
+        <span>100Hz</span><span>500Hz</span><span>1kHz</span><span>5kHz</span><span>10kHz</span>
+      </div>
+    </div>
+  </div>
+
+  <!--controles-->
+  <div class="controls-row">
+
+    <!--procesamiento-->
+    <div class="neu ctrl-card">
+      <div class="sec-title">Procesamiento</div>
+      <div class="sliders-wrap">
+
+        <div class="vslider-group orange-slider" data-id="s-terms">
+          <div class="vslider-lbl">Taylor</div>
+          <div class="vtrack-wrap">
+            <div class="vslider-fill" id="fill-s-terms"></div>
+            <div class="vslider-thumb" id="thumb-s-terms"></div>
+          </div>
+          <div class="vslider-val" id="v-terms">5</div>
+        </div>
+
+        <div class="vslider-group orange-slider" data-id="s-noise">
+          <div class="vslider-lbl">Ruido</div>
+          <div class="vtrack-wrap">
+            <div class="vslider-fill" id="fill-s-noise"></div>
+            <div class="vslider-thumb" id="thumb-s-noise"></div>
+          </div>
+          <div class="vslider-val" id="v-noise">25%</div>
+        </div>
+
+        <div class="vslider-group orange-slider" data-id="s-smooth">
+          <div class="vslider-lbl">Suavizado</div>
+          <div class="vtrack-wrap">
+            <div class="vslider-fill" id="fill-s-smooth"></div>
+            <div class="vslider-thumb" id="thumb-s-smooth"></div>
+          </div>
+          <div class="vslider-val" id="v-smooth">6</div>
+        </div>
+
+        <div class="vslider-group orange-slider" data-id="s-freq">
+          <div class="vslider-lbl">Frecuencia</div>
+          <div class="vtrack-wrap">
+            <div class="vslider-fill" id="fill-s-freq"></div>
+            <div class="vslider-thumb" id="thumb-s-freq"></div>
+          </div>
+          <div class="vslider-val" id="v-freq">plano</div>
+        </div>
+
+        <div class="vslider-group orange-slider" data-id="s-win">
+          <div class="vslider-lbl">Q / Vent.</div>
+          <div class="vtrack-wrap">
+            <div class="vslider-fill" id="fill-s-win"></div>
+            <div class="vslider-thumb" id="thumb-s-win"></div>
+          </div>
+          <div class="vslider-val" id="v-win">1.00</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!--ecualizador-->
+    <div class="neu ctrl-card">
+      <div class="sec-title">Ecualizador</div>
+      <div class="sliders-wrap">
+
+        <div class="vslider-group white-slider" data-id="s-sub">
+          <div class="vslider-lbl">Graves</div>
+          <div class="vtrack-wrap">
+            <div class="vslider-fill" id="fill-s-sub"></div>
+            <div class="vslider-thumb" id="thumb-s-sub"></div>
+          </div>
+          <div class="vslider-val" id="v-sub">0dB</div>
+        </div>
+
+        <div class="vslider-group white-slider" data-id="s-bass">
+          <div class="vslider-lbl">Bajos</div>
+          <div class="vtrack-wrap">
+            <div class="vslider-fill" id="fill-s-bass"></div>
+            <div class="vslider-thumb" id="thumb-s-bass"></div>
+          </div>
+          <div class="vslider-val" id="v-bass">0dB</div>
+        </div>
+
+        <div class="vslider-group white-slider" data-id="s-treble">
+          <div class="vslider-lbl">Agudos</div>
+          <div class="vtrack-wrap">
+            <div class="vslider-fill" id="fill-s-treble"></div>
+            <div class="vslider-thumb" id="thumb-s-treble"></div>
+          </div>
+          <div class="vslider-val" id="v-treble">0dB</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!--volumen-->
+    <div class="neu ctrl-card">
+      <div class="sec-title">Volumen de salida</div>
+      <div class="hslider-group">
+        <div class="hslider-header">
+          <span class="hslider-lbl">Nivel</span>
+          <span class="hslider-val"><span id="v-vol">100</span>%</span>
+        </div>
+        <div class="htrack-wrap" id="h-vol-track">
+          <div class="hslider-fill" id="fill-s-vol"></div>
+          <div class="hslider-thumb" id="thumb-s-vol"></div>
+        </div>
+      </div>
+      <div class="vol-extras">
+        <div class="vol-meta" id="vol-meta">
+          Sin archivo cargado
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!--operaciones y metricas-->
+  <div class="metrics-row">
+
+    <div class="neu math-card">
+      <div class="sec-title">Operaciones matematicas activas</div>
+      <div class="math-display" id="formula-display">Ajusta los parametros para ver las ecuaciones activas</div>
+    </div>
+
+    <div class="neu metrics-card">
+      <div class="sec-title">Metricas</div>
+      <div class="tiles">
+        <div class="tile"><div class="tl">Error Taylor</div><div class="tv g" id="m-err">...</div></div>
+        <div class="tile"><div class="tl">Red. Ruido</div><div class="tv a" id="m-red">...</div></div>
+        <div class="tile"><div class="tl">Terminos</div><div class="tv" id="m-terms">5</div></div>
+        <div class="tile"><div class="tl">Sample Rate</div><div class="tv" id="m-samples">...</div></div>
+      </div>
+      <div class="lcd">
+        <div class="lcd-row"><span>sin(&#960;/4) Taylor</span><span class="lv" id="l-t1">...</span></div>
+        <div class="lcd-row"><span>sin(&#960;/4) exacto</span><span class="lv">0.70710678</span></div>
+        <div class="lcd-row"><span>sin(&#960;/2) Taylor</span><span class="lv" id="l-t2">...</span></div>
+        <div class="lcd-row"><span>sin(&#960;/2) exacto</span><span class="lv">1.00000000</span></div>
+        <div class="lcd-row"><span>Error maximo</span><span class="lv a" id="l-max">...</span></div>
+        <div class="lcd-row"><span>RMS original</span><span class="lv r" id="l-varn">...</span></div>
+        <div class="lcd-row"><span>RMS procesada</span><span class="lv" id="l-varf">...</span></div>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-left">
+    Serie de Maclaurin &nbsp;&middot;&nbsp; Regla del Trapecio &nbsp;&middot;&nbsp; Filtros Biquad IIR<br>
+    Compresor Dinamico &nbsp;&middot;&nbsp; Compuerta de Ruido &nbsp;&middot;&nbsp; Calculo II
+  </div>
+  <div class="footer-right">
+    <div class="footer-studio">minnt studio</div>
+    <div class="footer-brand">CALC-II</div>
+  </div>
+</footer>
 
 <script>
 (function () {
-  var vuDots = document.getElementById('vu-dots');
-  for (var i = 0; i < 18; i++) {
-    var d = document.createElement('div');
-    d.className = 'vu-dot';
-    vuDots.appendChild(d);
-  }
 
-  var TRACK_H = 110, THUMB_H = 20, USABLE = TRACK_H - THUMB_H;
+  /* vertical sliders */
+  var TRACK_H = 180, THUMB_H = 22, USABLE = TRACK_H - THUMB_H;
 
-  function pctToTop(pct) { return (1 - pct) * USABLE + (THUMB_H / 2) - (THUMB_H / 2); }
+  function initVSlider(id) {
+    var input = document.getElementById(id);
+    var thumb = document.getElementById('thumb-' + id);
+    var fill  = document.getElementById('fill-' + id);
+    if (!input || !thumb || !fill) return;
 
-  function initSlider(id) {
-    var input  = document.getElementById(id);
-    var thumb  = document.getElementById('thumb-' + id);
-    var fill   = document.getElementById('fill-' + id);
-    var group  = thumb.closest('.vtrack-wrap');
-    if (!input || !thumb || !fill || !group) return;
-
-    function syncVisual() {
-      var min = parseFloat(input.min), max = parseFloat(input.max), val = parseFloat(input.value);
-      var pct = (val - min) / (max - min);
-      var topPx = pctToTop(pct);
-      thumb.style.top = topPx + 'px';
-      var fillH = (pct * USABLE);
-      fill.style.height = fillH + 'px';
-      fill.style.bottom = '10px';
+    function pct() {
+      return (parseFloat(input.value) - parseFloat(input.min)) / (parseFloat(input.max) - parseFloat(input.min));
     }
 
-    syncVisual();
-
-    var dragging = false, startY = 0, startVal = 0;
-
-    function onDown(e) {
-      dragging = true;
-      startY = e.touches ? e.touches[0].clientY : e.clientY;
-      startVal = parseFloat(input.value);
-      e.preventDefault();
+    function sync() {
+      var p = pct();
+      thumb.style.top = ((1 - p) * USABLE) + 'px';
+      fill.style.height = (p * USABLE) + 'px';
+      fill.style.bottom = '11px';
     }
 
-    function onMove(e) {
-      if (!dragging) return;
+    sync();
+    var drag = false, sy = 0, sv = 0;
+
+    function down(e) { drag = true; sy = e.touches ? e.touches[0].clientY : e.clientY; sv = parseFloat(input.value); e.preventDefault(); }
+    function move(e) {
+      if (!drag) return;
       var cy = e.touches ? e.touches[0].clientY : e.clientY;
-      var dy = startY - cy;
       var range = parseFloat(input.max) - parseFloat(input.min);
-      var delta = (dy / USABLE) * range;
-      var nv = Math.min(parseFloat(input.max), Math.max(parseFloat(input.min), startVal + delta));
-      var step = parseFloat(input.step) || 1;
-      nv = Math.round(nv / step) * step;
-      input.value = nv;
-      input.dispatchEvent(new Event('input'));
-      syncVisual();
+      var step  = parseFloat(input.step) || 1;
+      var nv = Math.round(Math.min(parseFloat(input.max), Math.max(parseFloat(input.min), sv + ((sy - cy) / USABLE) * range)) / step) * step;
+      input.value = nv; input.dispatchEvent(new Event('input')); sync(); e.preventDefault();
+    }
+
+    thumb.addEventListener('mousedown',  down);
+    thumb.addEventListener('touchstart', down, { passive: false });
+    window.addEventListener('mousemove',  move);
+    window.addEventListener('touchmove',  move, { passive: false });
+    window.addEventListener('mouseup',   function () { drag = false; });
+    window.addEventListener('touchend',  function () { drag = false; });
+    input.addEventListener('input', sync);
+  }
+
+  ['s-terms','s-noise','s-smooth','s-freq','s-win','s-bass','s-treble','s-sub'].forEach(initVSlider);
+
+  /* horizontal volume slider */
+  (function () {
+    var input = document.getElementById('s-vol');
+    var track = document.getElementById('h-vol-track');
+    var thumb = document.getElementById('thumb-s-vol');
+    var fill  = document.getElementById('fill-s-vol');
+    if (!input || !track || !thumb || !fill) return;
+
+    var HTHUMB = 24;
+
+    function pct() { return (parseFloat(input.value) - parseFloat(input.min)) / (parseFloat(input.max) - parseFloat(input.min)); }
+
+    function sync() {
+      var p = pct();
+      var W = track.clientWidth || 160;
+      var usable = W - HTHUMB;
+      thumb.style.left = (HTHUMB / 2 + p * usable) + 'px';
+      fill.style.width = (p * usable) + 'px';
+    }
+
+    sync();
+
+    var drag = false, sx = 0, sv = 0;
+
+    function down(e) { drag = true; sx = e.touches ? e.touches[0].clientX : e.clientX; sv = parseFloat(input.value); e.preventDefault(); }
+    function move(e) {
+      if (!drag) return;
+      var cx = e.touches ? e.touches[0].clientX : e.clientX;
+      var W = track.clientWidth || 160;
+      var usable = W - HTHUMB;
+      var range = parseFloat(input.max) - parseFloat(input.min);
+      var nv = Math.round(Math.min(parseFloat(input.max), Math.max(parseFloat(input.min), sv + ((cx - sx) / usable) * range)));
+      input.value = nv; input.dispatchEvent(new Event('input')); sync(); e.preventDefault();
+    }
+
+    track.addEventListener('mousedown',  down);
+    track.addEventListener('touchstart', down, { passive: false });
+    window.addEventListener('mousemove',  move);
+    window.addEventListener('touchmove',  move, { passive: false });
+    window.addEventListener('mouseup',   function () { drag = false; });
+    window.addEventListener('touchend',  function () { drag = false; });
+    input.addEventListener('input', sync);
+    window.addEventListener('resize', sync);
+  })();
+
+  /* progress bars for players */
+  function initSeekBar(trackId, fillId, thumbId, which) {
+    var track = document.getElementById(trackId);
+    var fill  = document.getElementById(fillId);
+    var thumb = document.getElementById(thumbId);
+    if (!track || !fill || !thumb) return;
+
+    var HTHUMB = 16;
+    var drag = false, sx = 0;
+
+    function syncFromRatio(r) {
+      r = Math.max(0, Math.min(1, r));
+      var W = track.clientWidth || 200, usable = W - HTHUMB;
+      thumb.style.left = (HTHUMB / 2 + r * usable) + 'px';
+      fill.style.width = (r * usable) + 'px';
+    }
+
+    window['syncSeek_' + which] = syncFromRatio;
+
+    function seekRatio(e) {
+      var rect = track.getBoundingClientRect();
+      var cx   = e.touches ? e.touches[0].clientX : e.clientX;
+      return Math.max(0, Math.min(1, (cx - rect.left - HTHUMB / 2) / (rect.width - HTHUMB)));
+    }
+
+    function down(e) {
+      drag = true;
+      var r = seekRatio(e);
+      syncFromRatio(r);
+      if (window.AP && AP.players && AP.players[which]) AP.players[which].seek(r);
       e.preventDefault();
     }
 
-    function onUp() { dragging = false; }
+    function move(e) {
+      if (!drag) return;
+      var r = seekRatio(e);
+      syncFromRatio(r);
+      if (window.AP && AP.players && AP.players[which]) AP.players[which].seek(r);
+      e.preventDefault();
+    }
 
-    thumb.addEventListener('mousedown', onDown);
-    thumb.addEventListener('touchstart', onDown, { passive: false });
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('touchmove', onMove, { passive: false });
-    window.addEventListener('mouseup', onUp);
-    window.addEventListener('touchend', onUp);
-
-    input.addEventListener('input', syncVisual);
+    track.addEventListener('mousedown',  down);
+    track.addEventListener('touchstart', down, { passive: false });
+    window.addEventListener('mousemove',  move);
+    window.addEventListener('touchmove',  move, { passive: false });
+    window.addEventListener('mouseup',   function () { drag = false; });
+    window.addEventListener('touchend',  function () { drag = false; });
+    window.addEventListener('resize', function () {
+      if (window.AP && AP.players && AP.players[which]) syncFromRatio(AP.players[which].currentPos());
+    });
   }
 
-  var SLIDER_IDS = ['s-terms','s-noise','s-smooth','s-freq','s-win','s-bass','s-treble','s-sub'];
-  SLIDER_IDS.forEach(initSlider);
+  initSeekBar('seek-raw',  'prog-raw-fill',  'prog-raw-thumb',  'raw');
+  initSeekBar('seek-proc', 'prog-proc-fill', 'prog-proc-thumb', 'proc');
 
-  /* volume knob */
-  var volInput = document.getElementById('s-vol');
-  var volRing  = document.getElementById('vol-ring');
-  var volNum   = document.getElementById('vol-num');
-  var volArc   = document.getElementById('vol-arc');
+  /* vu dots */
+  var vuDots = [];
+  var vuf = document.getElementById('vu-dots');
 
-  function arcPath(pct) {
-    var startAngle = -220 * Math.PI / 180;
-    var sweep      = 260 * Math.PI / 180;
-    var angle      = startAngle + pct * sweep;
-    var cx = 55, cy = 55, r = 50;
-    var sx = cx + r * Math.cos(startAngle), sy = cy + r * Math.sin(startAngle);
-    var ex = cx + r * Math.cos(angle),      ey = cy + r * Math.sin(angle);
-    var large = pct > 0.5 ? 1 : 0;
-    if (pct < 0.001) return '';
-    return 'M ' + sx + ' ' + sy + ' A ' + r + ' ' + r + ' 0 ' + large + ' 1 ' + ex + ' ' + ey;
+  /* drop zone */
+  var dz = document.getElementById('drop-zone');
+  if (dz) {
+    dz.addEventListener('dragover',  function (e) { e.preventDefault(); dz.classList.add('drag-over'); });
+    dz.addEventListener('dragleave', function () { dz.classList.remove('drag-over'); });
+    dz.addEventListener('click',     function () { document.getElementById('file-input').click(); });
+    dz.addEventListener('drop', function (e) {
+      e.preventDefault(); dz.classList.remove('drag-over');
+      var f = e.dataTransfer && e.dataTransfer.files[0];
+      if (f) { var ev = new Event('change'); document.getElementById('file-input').files; window._triggerLoad && window._triggerLoad(f); }
+    });
   }
 
-  function syncVol() {
-    var v = parseFloat(volInput.value);
-    var pct = v / 150;
-    volNum.textContent = v;
-    volArc.setAttribute('d', arcPath(pct));
-  }
-
-  syncVol();
-
-  var volDragging = false, volStartY = 0, volStartVal = 0;
-
-  volRing.addEventListener('mousedown', function (e) {
-    volDragging = true; volStartY = e.clientY; volStartVal = parseFloat(volInput.value); e.preventDefault();
-  });
-  volRing.addEventListener('touchstart', function (e) {
-    volDragging = true; volStartY = e.touches[0].clientY; volStartVal = parseFloat(volInput.value); e.preventDefault();
-  }, { passive: false });
-
-  window.addEventListener('mousemove', function (e) {
-    if (!volDragging) return;
-    var dy = volStartY - e.clientY;
-    var nv = Math.min(150, Math.max(0, volStartVal + dy));
-    volInput.value = Math.round(nv);
-    volInput.dispatchEvent(new Event('input'));
-    syncVol();
-  });
-  window.addEventListener('touchmove', function (e) {
-    if (!volDragging) return;
-    var dy = volStartY - e.touches[0].clientY;
-    var nv = Math.min(150, Math.max(0, volStartVal + dy));
-    volInput.value = Math.round(nv);
-    volInput.dispatchEvent(new Event('input'));
-    syncVol();
-    e.preventDefault();
-  }, { passive: false });
-  window.addEventListener('mouseup',  function () { volDragging = false; });
-  window.addEventListener('touchend', function () { volDragging = false; });
-  volInput.addEventListener('input', syncVol);
-
-  var dropZone = document.getElementById('drop-zone');
-  dropZone.addEventListener('click', function () { document.getElementById('file-input').click(); });
-  dropZone.addEventListener('dragover', function (e) { e.preventDefault(); dropZone.classList.add('drag-over'); });
-  dropZone.addEventListener('dragleave', function () { dropZone.classList.remove('drag-over'); });
-  dropZone.addEventListener('drop', function (e) {
-    e.preventDefault(); dropZone.classList.remove('drag-over');
-    var f = e.dataTransfer.files[0];
-    if (f) triggerLoad(f);
-  });
-
-  function triggerLoad(f) {
-    var ev = { target: { files: [f] } };
-    document.getElementById('file-input').dispatchEvent(new Event('change'));
-  }
 })();
 </script>
 
